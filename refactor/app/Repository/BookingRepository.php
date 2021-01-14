@@ -38,6 +38,9 @@ class BookingRepository extends BaseRepository
     protected $mailer;
     protected $logger;
 
+    /**
+     * I have remove the direct access to env file and store it config.php and retrieve from there and store as class constant.
+     */
     const ADMIN_ROLE_ID = 'ADMIN_ROLE_ID'; //store in config.php and fetch here
 
     const SUPERADMIN_ROLE_ID = 'SUPERADMIN_ROLE_ID'; //store in config.php and fetch here
@@ -135,6 +138,9 @@ class BookingRepository extends BaseRepository
 
         $immediatetime = 5;
         $consumer_type = $user->userMeta->consumer_type;
+        /**
+         * remove the env file and store it class constant. It is easy and self contained.
+         */
         if ($user->user_type == self::CUSTOMER_ROLE_ID) {
             $cuser = $user;
 
@@ -291,6 +297,12 @@ class BookingRepository extends BaseRepository
     public function storeJobEmail($data)
     {
         try {
+            /**
+             * @data['user_email_job_id'] is hard way to get data and it is not sustaintable instead we should use is_array and array_key_exist method etc to check
+             * key and value. We should need laravel validation. I don't know why laravel validation is not used here. may be some issue but I think that
+             * we should need to use laravel validation.
+             * Try is catch is nesscessary because I am 100% sure that It will raise error when @data['user_email_job_id'] could not supply value
+             */
             $user_type = $data['user_type'];
             $job = Job::findOrFail(@$data['user_email_job_id']);
             $job->user_email = @$data['user_email'];
@@ -325,6 +337,9 @@ class BookingRepository extends BaseRepository
             return $response;
         } catch (\Exception $e) {
             // return default data
+            /**
+             * Use Laravel Api Resources or create your resource api to standardize the application output.
+             */
             return [
                 'default_field_1' => 1,
                 'default_field_2' => 2,
@@ -753,10 +768,17 @@ class BookingRepository extends BaseRepository
      */
     public function updateJob($id, $data, $cuser)
     {
+        /**
+         * What if supplied id is deleted and it will raise error that is why I have count() to ensure data and I think that we should incorporate
+         * transaction so that data consistency is ensured.
+         */
         if ( Job::find($id)->count() > 0 ) {
             $job = Job::find($id);
 
             $current_translator = $job->translatorJobRel->where('cancel_at', Null)->first();
+            /**
+             * I hate one line if condition. It create confusion and I think we should use ternary operator instead of one if
+             */
             if (is_null($current_translator)) {
                 $current_translator = $job->translatorJobRel->where('completed_at', '!=', Null)->first();
             }
@@ -1399,6 +1421,10 @@ class BookingRepository extends BaseRepository
     public function acceptJob($data, $user)
     {
         try {
+        	/**
+        	* findOrFail may throw error. It need error hanlding. That is why I included error handling.
+        	* and I think a lot of constant is used.
+        	*/
             $adminemail = config('app.admin_email');
             $adminSenderEmail = config('app.admin_sender_email');
 
@@ -1443,6 +1469,10 @@ class BookingRepository extends BaseRepository
             return $response;
 
         } catch (\Exception $e) {
+        	/**
+        	* Try catch may throw exception that is we need to response some default data so that client can hanlde it
+        	* smoothly
+        	*/
             // return default data
             return [
                 'default_field_1' => 1,
@@ -1456,6 +1486,10 @@ class BookingRepository extends BaseRepository
     public function acceptJobWithId($job_id, $cuser)
     {
         try {
+        	/**
+        	* findOrFail may throw error. It need error hanlding. That is why I included error handling.
+        	* and I think a lot of constant is used.
+        	*/
             $adminemail = config('app.admin_email');
             $adminSenderEmail = config('app.admin_sender_email');
             $job = Job::findOrFail($job_id);
@@ -1509,6 +1543,10 @@ class BookingRepository extends BaseRepository
             }
             return $response;
         } catch (\Exception $e) {
+        	/**
+        	* Try catch may throw exception that is we need to response some default data so that client can hanlde it
+        	* smoothly
+        	*/
             // return default data
             return [
                 'default_field_1' => 1,
@@ -1522,6 +1560,10 @@ class BookingRepository extends BaseRepository
     {
         try {
             $response = array();
+            /**
+        	* findOrFail may throw error. It need error hanlding. That is why I included error handling.
+        	* and I think a lot of constant is used.
+        	*/
             /*@todo
                 add 24hrs loging here.
                 If the cancelation is before 24 hours before the booking tie - supplier will be informed. Flow ended
@@ -1592,6 +1634,10 @@ class BookingRepository extends BaseRepository
             return $response;
         } catch (\Exception $e) {
             // return default data
+            /**
+        	* Try catch may throw exception that is we need to response some default data so that client can hanlde it
+        	* smoothly
+        	*/
             return [
                 'default_field_1' => 1,
                 'default_field_2' => 2,

@@ -38,13 +38,22 @@ class BookingController extends Controller
         if($user_id = $request->get('user_id')) {
 
             $response = $this->repository->getUsersJobs($user_id);
-
+        /**
+         * I have replace the ADMIN_ROLE_ID and SUPERADMIN_ROLE_ID with Model Constant. Whatever we store in .env file.
+         * We should retrieve that  in config.php and store that it config.php. Config.php is cachable by default and direct access
+         * form .env file will degrade performance and we should store the such constant value in their respective model as constant
+         * variable so that each constant value to their respective category. Hence it will not improve performance but also readability
+         * and maintainability.
+         *
+         */
         }
         elseif($request->__authenticatedUser->user_type == $this->repository->ADMIN_ROLE_ID || $request->__authenticatedUser->user_type == $this->repository->SUPERADMIN_ROLE_ID)
         {
             $response = $this->repository->getAll($request);
         }
-
+        /**
+         * We should add laravel api resources so that api response is consistent and easy.
+         */
         return response($response);
     }
 
